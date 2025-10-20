@@ -1,0 +1,41 @@
+name: Publish Static MCP Registry Template
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch: {}
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Basic validation
+              run: |
+                  set -e
+                  test -f docs/v0/servers/index.json
+                  jq '.servers | length' docs/v0/servers/index.json
+                  jq -e 'all(.servers[]; .server."$schema" != null and .server.name != null and .server.version != null)' docs/v0/servers/index.json > /dev/null
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: docs
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v4

@@ -1,0 +1,107 @@
+[
+  {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+    "name": "com.github/github",
+    "description": "GitHub MCP server (client connects via HTTP).",
+    "version": "0.0.1",
+    "repository": { "url": "https://github.com", "source": "github" },
+    "packages": [
+      {
+        "registryType": "url",
+        "identifier": "https://api.githubcopilot.com/mcp/",
+        "version": "0.0.1",
+        "environmentVariables": [],
+        "transport": {
+          "type": "streamable-http",
+          "url": "https://api.githubcopilot.com/mcp/"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+    "name": "io.npm.salesforce/mcp",
+    "description": "Salesforce DX MCP server launched via npx.",
+    "version": "1.0.0",
+    "repository": {
+      "url": "https://www.npmjs.com/package/@salesforce/mcp",
+      "source": "github"
+    },
+    "packages": [
+      {
+        "registryType": "npm",
+        "identifier": "@salesforce/mcp",
+        "version": "1.0.0",
+        "environmentVariables": [
+          {
+            "name": "DEFAULT_TARGET_ORG",
+            "input": {
+              "description": "Default Salesforce org alias.",
+              "isRequired": false,
+              "isSecret": false,
+              "format": "string"
+            }
+          }
+        ],
+        "transport": { "type": "stdio" },
+        "runtimeHint": "npx",
+        "runtimeArguments": [
+          { "type": "positional", "value": "--no-telemetry" },
+          { "type": "positional", "value": "--dynamic-tools" },
+          { "type": "positional", "value": "all" }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+    "name": "com.atlassian/mcp",
+    "description": "Atlassian MCP server (SSE endpoint).",
+    "version": "0.0.1",
+    "websiteUrl": "https://mcp.atlassian.com",
+    "packages": [
+      {
+        "registryType": "url",
+        "identifier": "https://mcp.atlassian.com/v1/sse",
+        "version": "0.0.1",
+        "environmentVariables": [],
+        "transport": {
+          "type": "sse",
+          "url": "https://mcp.atlassian.com/v1/sse"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+    "name": "io.npm.upstash/context7-mcp",
+    "description": "Context7 MCP server via npx.",
+    "version": "1.0.0",
+    "packages": [
+      {
+        "registryType": "npm",
+        "identifier": "@upstash/context7-mcp",
+        "version": "1.0.0",
+        "environmentVariables": [],
+        "transport": { "type": "stdio" },
+        "runtimeHint": "npx"
+      }
+    ]
+  },
+  {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+    "name": "io.npm.chrome-devtools/mcp",
+    "description": "Chrome DevTools MCP server via npx.",
+    "version": "1.0.0",
+    "packages": [
+      {
+        "registryType": "npm",
+        "identifier": "chrome-devtools-mcp",
+        "version": "1.0.0",
+        "environmentVariables": [],
+        "transport": { "type": "stdio" },
+        "runtimeHint": "npx"
+      }
+    ]
+  }
+]

@@ -1,0 +1,73 @@
+name: Publish Static MCP Registry
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "data/curated_servers.json"
+            - ".github/workflows/publish-static-registry.yml"
+            - "scripts/generate_static_registry.go"
+    workflow_dispatch: {}
+
+permissions:
+    contents: write
+    pages: write
+    id-token: write
+
+concurrency:
+    group: static-registry-publish
+    cancel-in-progress: true
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.24"
+
+            - name: Generate static registry (versionSequence)
+              run: go run ./scripts/generate_static_registry.go
+
+            - name: Commit updated index.json
+              run: |
+                  set -e
+                  if git diff --quiet docs/v0/servers/index.json; then
+                    echo "No changes to index.json; skipping commit."
+                  else
+                    git config user.name "github-actions[bot]"
+                    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                    git add docs/v0/servers/index.json
+                    git commit -m "chore: update static registry index (auto)"
+                    git push
+                  fi
+
+            - name: Validate JSON structure
+              run: |
+                  set -e
+                  test -f docs/v0/servers/index.json
+                  jq '.servers | length' docs/v0/servers/index.json
+                  # Basic schema presence check for each server
+                  jq -e 'all(.servers[]; .server."$schema" != null and .server.name != null and .server.version != null)' docs/v0/servers/index.json > /dev/null
+                  # Check versionSequence exists
+                  jq -e 'all(.servers[]; ._meta."io.modelcontextprotocol.registry/official".versionSequence > 0)' docs/v0/servers/index.json > /dev/null
+
+            - name: Prepare Pages artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: docs
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

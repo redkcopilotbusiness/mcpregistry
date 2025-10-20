@@ -1,0 +1,31 @@
+{
+  "servers": [
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+        "name": "com.example/hello-mcp",
+        "description": "Example MCP server from static curated registry template.",
+        "version": "1.0.0",
+        "packages": [
+          {
+            "registryType": "npm",
+            "identifier": "@example/hello-mcp",
+            "version": "1.0.0",
+            "environmentVariables": [],
+            "transport": { "type": "stdio" }
+          }
+        ]
+      },
+      "_meta": {
+        "io.modelcontextprotocol.registry/official": {
+          "status": "active",
+          "publishedAt": "2025-10-20T00:00:00Z",
+          "updatedAt": "2025-10-20T00:00:00Z",
+          "isLatest": true,
+          "versionSequence": 1
+        }
+      }
+    }
+  ],
+  "metadata": { "count": 1 }
+}
