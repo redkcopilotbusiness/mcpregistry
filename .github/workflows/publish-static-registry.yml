@@ -33,6 +33,10 @@ jobs:
             - name: Generate static registry (versionSequence)
               run: go run ./scripts/generate_static_registry.go
 
+            # Skipping golangci-lint for generate_static_registry.go due to
+            # temporary golangci-lint v2 build mismatch with Go 1.25.
+            # Re-enable once a v2 binary built with >=1.25 is available.
+
             - name: Commit updated index.json
               run: |
                   set -e
