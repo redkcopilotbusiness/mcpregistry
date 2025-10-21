@@ -5,7 +5,11 @@
       "name": "GitHub MCP Server",
       "description": "Tools and resources for GitHub repos, issues, PRs, and Actions.",
       "manifest_url": "https://registry.example.com/servers/github/manifest.json",
-      "categories": ["code", "devops", "github"],
+      "categories": [
+        "code",
+        "devops",
+        "github"
+      ],
       "version": "0.0.1",
       "release_date": "2025-10-20T00:00:00Z",
       "latest": true
@@ -15,7 +19,10 @@
       "name": "Salesforce DX MCP Server",
       "description": "Salesforce DX MCP server launched via npx.",
       "manifest_url": "https://registry.example.com/servers/salesforce/manifest.json",
-      "categories": ["crm", "salesforce"],
+      "categories": [
+        "crm",
+        "salesforce"
+      ],
       "version": "1.0.0",
       "release_date": "2025-10-20T00:00:00Z",
       "latest": true
@@ -25,7 +32,11 @@
       "name": "Atlassian MCP Server",
       "description": "Atlassian MCP server (SSE endpoint).",
       "manifest_url": "https://registry.example.com/servers/atlassian/manifest.json",
-      "categories": ["collaboration", "atlassian"],
+      "categories": [
+        "collaboration",
+        "atlassian",
+        "jira"
+      ],
       "version": "0.0.1",
       "release_date": "2025-10-20T00:00:00Z",
       "latest": true
@@ -35,7 +46,10 @@
       "name": "Context7 MCP Server",
       "description": "Context7 MCP server via npx.",
       "manifest_url": "https://registry.example.com/servers/context7/manifest.json",
-      "categories": ["data", "search"],
+      "categories": [
+        "data",
+        "search"
+      ],
       "version": "1.0.0",
       "release_date": "2025-10-20T00:00:00Z",
       "latest": true
@@ -45,12 +59,15 @@
       "name": "Chrome DevTools MCP Server",
       "description": "Chrome DevTools MCP server via npx.",
       "manifest_url": "https://registry.example.com/servers/chrome-devtools/manifest.json",
-      "categories": ["browser", "devtools"],
+      "categories": [
+        "browser",
+        "devtools"
+      ],
       "version": "1.0.0",
       "release_date": "2025-10-20T00:00:00Z",
       "latest": true
     }
   ],
   "total_count": 5,
-  "updated_at": "2025-10-21T07:20:53Z"
+  "updated_at": "2025-10-21T07:23:16Z"
 }
