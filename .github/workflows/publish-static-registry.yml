@@ -1,77 +1,82 @@
 name: Publish Static MCP Registry
 
 on:
-    push:
-        branches: [main]
-        paths:
-            - "data/curated_servers.json"
-            - ".github/workflows/publish-static-registry.yml"
-            - "scripts/generate_static_registry.go"
-    workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "data/curated_servers.json"
+      - ".github/workflows/publish-static-registry.yml"
+      - "scripts/generate_static_registry.go"
+  workflow_dispatch: {}
 
 permissions:
-    contents: write
-    pages: write
-    id-token: write
+  contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-    group: static-registry-publish
-    cancel-in-progress: true
+  group: static-registry-publish
+  cancel-in-progress: true
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Set up Go
-              uses: actions/setup-go@v5
-              with:
-                  go-version: "1.25"
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
 
-            - name: Generate static registry (versionSequence)
-              run: go run ./scripts/generate_static_registry.go
+      - name: Generate static registry (simple format)
+        run: go run ./scripts/generate_static_registry.go
 
-            # Skipping golangci-lint for generate_static_registry.go due to
-            # temporary golangci-lint v2 build mismatch with Go 1.25.
-            # Re-enable once a v2 binary built with >=1.25 is available.
+      # Skipping golangci-lint for generate_static_registry.go due to
+      # temporary golangci-lint v2 build mismatch with Go 1.25.
+      # Re-enable once a v2 binary built with >=1.25 is available.
 
-            - name: Commit updated index.json
-              run: |
-                  set -e
-                  if git diff --quiet docs/v0/servers/index.json; then
-                    echo "No changes to index.json; skipping commit."
-                  else
-                    git config user.name "github-actions[bot]"
-                    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                    git add docs/v0/servers/index.json
-                    git commit -m "chore: update static registry index (auto)"
-                    git push
-                  fi
+      - name: Commit updated index.json
+        run: |
+          set -e
+          if git diff --quiet docs/v0/servers/index.json; then
+            echo "No changes to index.json; skipping commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/v0/servers/index.json
+            git commit -m "chore: update static registry index (auto)"
+            git push
+          fi
 
-            - name: Validate JSON structure
-              run: |
-                  set -e
-                  test -f docs/v0/servers/index.json
-                  jq '.servers | length' docs/v0/servers/index.json
-                  # Basic schema presence check for each server
-                  jq -e 'all(.servers[]; .server."$schema" != null and .server.name != null and .server.version != null)' docs/v0/servers/index.json > /dev/null
-                  # Check versionSequence exists
-                  jq -e 'all(.servers[]; ._meta."io.modelcontextprotocol.registry/official".versionSequence > 0)' docs/v0/servers/index.json > /dev/null
+      - name: Validate JSON structure (simple format)
+        run: |
+          set -e
+          test -f docs/v0/servers/index.json
+          # Count servers
+          jq -e '.servers | length > 0' docs/v0/servers/index.json > /dev/null
+          # Validate required fields in each server
+          jq -e 'all(.servers[]; (.id|type=="string") and (.name|type=="string") and (.description|type=="string") and (.manifest_url|type=="string"))' docs/v0/servers/index.json > /dev/null
+          # Optional fields consistency: version and release_date if present must be strings
+          jq -e 'all(.servers[]; (has("version") | not) or (.version|type=="string"))' docs/v0/servers/index.json > /dev/null
+          jq -e 'all(.servers[]; (has("release_date") | not) or (.release_date|type=="string"))' docs/v0/servers/index.json > /dev/null
+          # Root fields total_count and updated_at
+          jq -e '( .total_count == (.servers|length) )' docs/v0/servers/index.json > /dev/null
+          jq -e '( .updated_at | test("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$") )' docs/v0/servers/index.json > /dev/null
 
-            - name: Prepare Pages artifact
-              uses: actions/upload-pages-artifact@v3
-              with:
-                  path: docs
+      - name: Prepare Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
 
-    deploy:
-        needs: build
-        runs-on: ubuntu-latest
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        steps:
-            - name: Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v4
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
