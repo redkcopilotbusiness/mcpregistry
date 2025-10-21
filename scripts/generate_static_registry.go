@@ -7,112 +7,66 @@ import (
     "time"
 )
 
-// Minimal structures mirroring needed fields
-type ServerJSON struct {
-    Schema      string            `json:"$schema"`
-    Name        string            `json:"name"`
-    Description string            `json:"description"`
-    Title       string            `json:"title,omitempty"`
-    Repository  json.RawMessage   `json:"repository,omitempty"`
-    Version     string            `json:"version"`
-    WebsiteURL  string            `json:"websiteUrl,omitempty"`
-    Packages    []json.RawMessage `json:"packages,omitempty"`
-    Icons       []json.RawMessage `json:"icons,omitempty"`
-    Meta        json.RawMessage   `json:"_meta,omitempty"`
-    Remotes     []json.RawMessage `json:"remotes,omitempty"`
+// Simple registry format (GitHub instructions)
+// {
+//   "servers": [ { "id": "github", "name": "GitHub MCP Server", ... } ],
+//   "total_count": 2,
+//   "updated_at": "2025-09-09T12:00:00Z"
+// }
+
+type SimpleServer struct {
+    ID          string    `json:"id"`
+    Name        string    `json:"name"`
+    Description string    `json:"description"`
+    ManifestURL string    `json:"manifest_url"`
+    Categories  []string  `json:"categories,omitempty"`
+    Version     string    `json:"version,omitempty"`
+    ReleaseDate time.Time `json:"release_date,omitempty"`
+    Latest      bool      `json:"latest,omitempty"`
 }
 
-type OfficialMeta struct {
-    Status          string    `json:"status"`
-    PublishedAt     time.Time `json:"publishedAt"`
-    UpdatedAt       time.Time `json:"updatedAt"`
-    IsLatest        bool      `json:"isLatest"`
-    VersionSequence int       `json:"versionSequence"`
-}
-
-type ResponseMeta struct {
-    Official OfficialMeta `json:"io.modelcontextprotocol.registry/official"`
-}
-
-type ServerResponse struct {
-    Server ServerJSON   `json:"server"`
-    Meta   ResponseMeta `json:"_meta"`
-}
-
-type ServerListResponse struct {
-    Servers  []ServerResponse `json:"servers"`
-    Metadata struct{ Count int `json:"count"` } `json:"metadata"`
+type Curated struct {
+    Servers    []SimpleServer `json:"servers"`
+    TotalCount int            `json:"total_count"`
+    UpdatedAt  time.Time      `json:"updated_at"`
 }
 
 func main() {
     sourcePath := "data/curated_servers.json"
-    existingIndexPath := "docs/v0/servers/index.json"
+    outputPath := "docs/v0/servers/index.json"
 
-    sourceData, err := os.ReadFile(sourcePath)
+    raw, err := os.ReadFile(sourcePath)
     if err != nil {
-        fmt.Fprintf(os.Stderr, "failed to read curated source: %v\n", err)
+        fmt.Fprintf(os.Stderr, "failed to read curated_servers.json: %v\n", err)
         os.Exit(1)
     }
 
-    var servers []ServerJSON
-    if err := json.Unmarshal(sourceData, &servers); err != nil {
-        fmt.Fprintf(os.Stderr, "failed to parse curated source: %v\n", err)
+    var curated Curated
+    if err := json.Unmarshal(raw, &curated); err != nil {
+        fmt.Fprintf(os.Stderr, "failed to parse curated_servers.json (expecting simple registry format): %v\n", err)
         os.Exit(1)
     }
 
-  // Load existing index if present to reuse versionSequence
-    existingSequences := map[string]struct{ Version string; Seq int }{}
-    if data, err := os.ReadFile(existingIndexPath); err == nil {
-        var existing ServerListResponse
-        if json.Unmarshal(data, &existing) == nil {
-            for _, sr := range existing.Servers {
-                existingSequences[sr.Server.Name] = struct{ Version string; Seq int }{Version: sr.Server.Version, Seq: sr.Meta.Official.VersionSequence}
-            }
-        }
+    // Populate counts & timestamps if missing / zero.
+    if curated.TotalCount == 0 {
+        curated.TotalCount = len(curated.Servers)
     }
+    // Always refresh updated_at to reflect regeneration time.
+    curated.UpdatedAt = time.Now().UTC().Truncate(time.Second)
 
-    now := time.Now().UTC()
-    out := ServerListResponse{}
-
-    for _, s := range servers {
-        prev, ok := existingSequences[s.Name]
-        seq := 1
-        if ok {
-            if prev.Version == s.Version && prev.Seq > 0 {
-                seq = prev.Seq // unchanged version, keep sequence
-            } else {
-                seq = prev.Seq + 1 // version changed or sequence 0 -> increment
-            }
-        }
-        out.Servers = append(out.Servers, ServerResponse{
-            Server: s,
-            Meta: ResponseMeta{Official: OfficialMeta{
-                Status:          "active",
-                PublishedAt:     now, // Could preserve previous publishedAt if needed
-                UpdatedAt:       now,
-                IsLatest:        true,
-                VersionSequence: seq,
-            }},
-        })
-    }
-    out.Metadata.Count = len(out.Servers)
-
-  // Ensure output directory exists
     if err := os.MkdirAll("docs/v0/servers", 0o755); err != nil {
-        fmt.Fprintf(os.Stderr, "failed to create output dir: %v\n", err)
+        fmt.Fprintf(os.Stderr, "failed to ensure output dir: %v\n", err)
         os.Exit(1)
     }
 
-    jsonBytes, err := json.MarshalIndent(out, "", "  ")
+    outBytes, err := json.MarshalIndent(curated, "", "  ")
     if err != nil {
-        fmt.Fprintf(os.Stderr, "failed to marshal output: %v\n", err)
+        fmt.Fprintf(os.Stderr, "failed to marshal index.json: %v\n", err)
         os.Exit(1)
     }
-
-    if err := os.WriteFile(existingIndexPath, jsonBytes, 0o600); err != nil { // 0600 per gosec recommendation
-        fmt.Fprintf(os.Stderr, "failed to write index.json: %v\n", err)
+    if err := os.WriteFile(outputPath, outBytes, 0o640); err != nil { // 0640 for read by others if served statically
+        fmt.Fprintf(os.Stderr, "failed to write %s: %v\n", outputPath, err)
         os.Exit(1)
     }
-
-    fmt.Fprintf(os.Stdout, "Generated docs/v0/servers/index.json with versionSequence numbers.\n")
+    fmt.Fprintln(os.Stdout, "Generated simple registry docs/v0/servers/index.json")
 }
