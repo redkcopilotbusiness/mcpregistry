@@ -7,6 +7,22 @@ set -e
 
 echo "Running pre-commit checks..."
 
+# If pre-commit is installed, run it on staged .go files (best-effort)
+if command -v pre-commit &> /dev/null; then
+    STAGED_GO=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$' || true)
+    if [ -n "$STAGED_GO" ]; then
+        echo "pre-commit found: running pre-commit hooks on staged Go files..."
+        # convert staged list into args for pre-commit
+        set -- $STAGED_GO
+        if ! pre-commit run --files "$@"; then
+            echo "❌ pre-commit hooks failed. Fix issues and try again."
+            exit 1
+        fi
+        # Re-add possibly modified files
+        git add $STAGED_GO || true
+    fi
+fi
+
 # Check if golangci-lint is installed
 if ! command -v golangci-lint &> /dev/null; then
     echo "❌ golangci-lint is not installed!"

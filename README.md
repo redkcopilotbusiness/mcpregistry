@@ -33,6 +33,34 @@ Often (but not always) ideas flow through this pipeline:
 - **Go 1.24.x** 
 - **golangci-lint v2.4.0**
 
+##### Developer tools (optional but recommended)
+
+To get consistent formatting and pre-commit checks, install the following tools locally:
+
+- pre-commit (Python package that runs repository hooks)
+- goimports (formats Go and organizes imports)
+
+Install and enable locally (user-level):
+
+```bash
+# Install pre-commit for your user
+python3 -m pip install --user pre-commit
+
+# Install goimports (places binary in $(go env GOPATH)/bin)
+go install golang.org/x/tools/cmd/goimports@latest
+
+# Ensure user-local and GOPATH bin are in PATH (add to ~/.zshrc or ~/.bashrc)
+export PATH="$HOME/Library/Python/3.12/bin:$(go env GOPATH)/bin:$PATH"
+
+# Install repo hooks (once per clone)
+pre-commit install
+
+# Run hooks for all files (CI-like check)
+pre-commit run --all-files
+```
+
+If you don't want to install these tools, the repository provides a Git hook at `.githooks/pre-commit` that will still run `golangci-lint` and `gofmt` during commits. Use `--no-verify` on `git commit` only as a last resort.
+
 #### Running the server
 
 ```bash
