@@ -1,73 +1,41 @@
 {
   "servers": [
     {
-      "id": "github",
-      "name": "GitHub MCP Server",
-      "description": "Tools and resources for GitHub repos, issues, PRs, and Actions.",
-      "manifest_url": "https://registry.example.com/servers/github/manifest.json",
-      "categories": [
-        "code",
-        "devops",
-        "github"
-      ],
-      "version": "0.0.1",
-      "release_date": "2025-10-20T00:00:00Z",
-      "latest": true
+      "id": "",
+      "name": "",
+      "description": "",
+      "manifest_url": "",
+      "release_date": "0001-01-01T00:00:00Z"
     },
     {
-      "id": "salesforce-mcp",
-      "name": "Salesforce DX MCP Server",
-      "description": "Salesforce DX MCP server launched via npx.",
-      "manifest_url": "https://registry.example.com/servers/salesforce/manifest.json",
-      "categories": [
-        "crm",
-        "salesforce"
-      ],
-      "version": "1.0.0",
-      "release_date": "2025-10-20T00:00:00Z",
-      "latest": true
+      "id": "",
+      "name": "",
+      "description": "",
+      "manifest_url": "",
+      "release_date": "0001-01-01T00:00:00Z"
     },
     {
-      "id": "atlassian-mcp",
-      "name": "Atlassian MCP Server",
-      "description": "Atlassian MCP server (SSE endpoint).",
-      "manifest_url": "https://registry.example.com/servers/atlassian/manifest.json",
-      "categories": [
-        "collaboration",
-        "atlassian",
-        "jira"
-      ],
-      "version": "0.0.1",
-      "release_date": "2025-10-20T00:00:00Z",
-      "latest": true
+      "id": "",
+      "name": "",
+      "description": "",
+      "manifest_url": "",
+      "release_date": "0001-01-01T00:00:00Z"
     },
     {
-      "id": "context7-mcp",
-      "name": "Context7 MCP Server",
-      "description": "Context7 MCP server via npx.",
-      "manifest_url": "https://registry.example.com/servers/context7/manifest.json",
-      "categories": [
-        "data",
-        "search"
-      ],
-      "version": "1.0.0",
-      "release_date": "2025-10-20T00:00:00Z",
-      "latest": true
+      "id": "",
+      "name": "",
+      "description": "",
+      "manifest_url": "",
+      "release_date": "0001-01-01T00:00:00Z"
     },
     {
-      "id": "chrome-devtools-mcp",
-      "name": "Chrome DevTools MCP Server",
-      "description": "Chrome DevTools MCP server via npx.",
-      "manifest_url": "https://registry.example.com/servers/chrome-devtools/manifest.json",
-      "categories": [
-        "browser",
-        "devtools"
-      ],
-      "version": "1.0.0",
-      "release_date": "2025-10-20T00:00:00Z",
-      "latest": true
+      "id": "",
+      "name": "",
+      "description": "",
+      "manifest_url": "",
+      "release_date": "0001-01-01T00:00:00Z"
     }
   ],
   "total_count": 5,
-  "updated_at": "2025-10-23T07:19:15Z"
+  "updated_at": "2025-11-13T14:14:28Z"
 }
