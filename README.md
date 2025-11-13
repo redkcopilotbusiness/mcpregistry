@@ -9,7 +9,8 @@ The MCP registry provides MCP clients with a list of MCP servers, like an app st
 **2025-09-08 update**: The registry has launched in preview 🎉 ([announcement blog post](https://blog.modelcontextprotocol.io/posts/2025-09-08-mcp-registry-preview/)). While the system is now more stable, this is still a preview release and breaking changes or data resets may occur. A general availability (GA) release will follow later. We'd love your feedback in [GitHub discussions](https://github.com/modelcontextprotocol/registry/discussions/new?category=ideas) or in the [#registry-dev Discord](https://discord.com/channels/1358869848138059966/1369487942862504016) ([joining details here](https://modelcontextprotocol.io/community/communication)).
 
 Current key maintainers:
-- **Adam Jones** (Anthropic) [@domdomegg](https://github.com/domdomegg)  
+
+- **Adam Jones** (Anthropic) [@domdomegg](https://github.com/domdomegg)
 - **Tadas Antanavicius** (PulseMCP) [@tadasant](https://github.com/tadasant)
 - **Toby Padilla** (GitHub) [@toby](https://github.com/toby)
 - **Radoslav (Rado) Dimitrov** (Stacklok) [@rdimitrov](https://github.com/rdimitrov)
@@ -22,7 +23,7 @@ Often (but not always) ideas flow through this pipeline:
 
 - **[Discord](https://modelcontextprotocol.io/community/communication)** - Real-time community discussions
 - **[Discussions](https://github.com/modelcontextprotocol/registry/discussions)** - Propose and discuss product/technical requirements
-- **[Issues](https://github.com/modelcontextprotocol/registry/issues)** - Track well-scoped technical work  
+- **[Issues](https://github.com/modelcontextprotocol/registry/issues)** - Track well-scoped technical work
 - **[Pull Requests](https://github.com/modelcontextprotocol/registry/pulls)** - Contribute work towards issues
 
 ### Quick start:
@@ -30,7 +31,7 @@ Often (but not always) ideas flow through this pipeline:
 #### Pre-requisites
 
 - **Docker**
-- **Go 1.24.x** 
+- **Go 1.24.x**
 - **golangci-lint v2.4.0**
 
 ##### Developer tools (optional but recommended)
@@ -93,7 +94,8 @@ docker run -p 8080:8080 ghcr.io/modelcontextprotocol/registry:v1.0.0
 docker run -p 8080:8080 ghcr.io/modelcontextprotocol/registry:main-20250906-abc123d
 ```
 
-**Available tags:** 
+**Available tags:**
+
 - **Releases**: `latest`, `v1.0.0`, `v1.1.0`, etc.
 - **Continuous**: `main` (latest main branch build)
 - **Development**: `main-<date>-<sha>` (specific commit builds)
@@ -158,12 +160,14 @@ For Claude and other AI tools: Always prefer make targets over custom commands w
 ### Authentication
 
 Publishing supports multiple authentication methods:
+
 - **GitHub OAuth** - For publishing by logging into GitHub
 - **GitHub OIDC** - For publishing from GitHub Actions
 - **DNS verification** - For proving ownership of a domain and its subdomains
 - **HTTP verification** - For proving ownership of a domain
 
 The registry validates namespace ownership when publishing. E.g. to publish...:
+
 - `io.github.domdomegg/my-cool-mcp` you must login to GitHub as `domdomegg`, or be in a GitHub Action on domdomegg's repos
 - `me.adamjones/my-cool-mcp` you must prove ownership of `adamjones.me` via DNS or HTTP challenge
 
