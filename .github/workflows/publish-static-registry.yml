@@ -54,21 +54,34 @@ jobs:
         run: |
           set -e
           test -f docs/v0/servers/index.json
-          # Count servers
+
+          # Install AJV CLI for JSON Schema validation
+          npm install -g ajv-cli ajv-formats
+
+          # Download the MCP server schema
+          curl -o /tmp/server.schema.json https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json
+
+          # Validate each server entry against the schema
+          echo "Validating server entries against MCP schema..."
+          server_count=$(jq '.servers | length' docs/v0/servers/index.json)
+
+          for i in $(seq 0 $((server_count - 1))); do
+            jq ".servers[$i].server" docs/v0/servers/index.json > "/tmp/server-$i.json"
+            if ! ajv validate -s /tmp/server.schema.json -d "/tmp/server-$i.json" --strict=false 2>&1 | grep -q "valid"; then
+              echo "❌ Server $i validation failed:"
+              jq ".servers[$i].server.name" docs/v0/servers/index.json
+              ajv validate -s /tmp/server.schema.json -d "/tmp/server-$i.json" --strict=false 2>&1 | grep -v "^unknown format"
+              exit 1
+            fi
+          done
+
+          # Basic structure validation
           jq -e '.servers | length > 0' docs/v0/servers/index.json > /dev/null
-          # Validate each server has _meta and server objects
           jq -e 'all(.servers[]; has("_meta") and has("server"))' docs/v0/servers/index.json > /dev/null
-          # Validate _meta structure
-          jq -e 'all(.servers[]; ._meta | has("io.modelcontextprotocol.registry/official"))' docs/v0/servers/index.json > /dev/null
-          jq -e 'all(.servers[]._meta."io.modelcontextprotocol.registry/official"; has("status") and has("publishedAt") and has("isLatest"))' docs/v0/servers/index.json > /dev/null
-          # Validate server object required fields
-          jq -e 'all(.servers[].server; has("$schema") and has("name") and has("description") and has("version"))' docs/v0/servers/index.json > /dev/null
-          jq -e 'all(.servers[].server; (."$schema"|type=="string") and (.name|type=="string") and (.description|type=="string") and (.version|type=="string"))' docs/v0/servers/index.json > /dev/null
-          # Validate server has either packages or remotes
-          jq -e 'all(.servers[].server; has("packages") or has("remotes"))' docs/v0/servers/index.json > /dev/null
-          # Validate metadata object
           jq -e 'has("metadata") and (.metadata | has("count"))' docs/v0/servers/index.json > /dev/null
           jq -e '(.metadata.count == (.servers|length))' docs/v0/servers/index.json > /dev/null
+
+          echo "✅ All $server_count servers validated successfully against MCP schema!"
 
       - name: Prepare Pages artifact
         uses: actions/upload-pages-artifact@v3
