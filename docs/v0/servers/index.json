@@ -14,14 +14,10 @@
         "description": "Tools and resources for GitHub repos, issues, PRs, and Actions.",
         "title": "GitHub MCP Server",
         "version": "0.0.1",
-        "packages": [
+        "remotes": [
           {
-            "registryType": "npm",
-            "identifier": "@modelcontextprotocol/server-github",
-            "version": "0.0.1",
-            "transport": {
-              "type": "stdio"
-            }
+            "type": "streamable-http",
+            "url": "https://api.githubcopilot.com/mcp/"
           }
         ]
       }
@@ -37,13 +33,13 @@
       "server": {
         "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
         "name": "io.salesforce/server-salesforce-dx",
-        "description": "Salesforce DX MCP server launched via npx.",
+        "description": "Salesforce DX MCP server with org management and dynamic tools.",
         "title": "Salesforce DX MCP Server",
         "version": "1.0.0",
         "packages": [
           {
             "registryType": "npm",
-            "identifier": "@salesforce/mcp-server-dx",
+            "identifier": "@salesforce/mcp",
             "version": "1.0.0",
             "runtimeHint": "npx",
             "transport": {
@@ -64,13 +60,13 @@
       "server": {
         "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
         "name": "com.atlassian/server-mcp",
-        "description": "Atlassian MCP server (SSE endpoint).",
+        "description": "Atlassian MCP server for Jira, Confluence, and other Atlassian products.",
         "title": "Atlassian MCP Server",
         "version": "0.0.1",
         "remotes": [
           {
             "type": "sse",
-            "url": "https://mcp.atlassian.com/sse"
+            "url": "https://mcp.atlassian.com/v1/sse"
           }
         ]
       }
@@ -85,14 +81,14 @@
       },
       "server": {
         "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
-        "name": "io.context7/server-mcp",
-        "description": "Context7 MCP server via npx.",
+        "name": "io.upstash.context7/server-mcp",
+        "description": "Context7 MCP server for semantic search and context retrieval.",
         "title": "Context7 MCP Server",
         "version": "1.0.0",
         "packages": [
           {
             "registryType": "npm",
-            "identifier": "@context7/mcp-server",
+            "identifier": "@upstash/context7-mcp",
             "version": "1.0.0",
             "runtimeHint": "npx",
             "transport": {
@@ -113,14 +109,41 @@
       "server": {
         "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
         "name": "io.chrome/server-devtools",
-        "description": "Chrome DevTools MCP server via npx.",
+        "description": "Chrome DevTools MCP server for browser automation and debugging.",
         "title": "Chrome DevTools MCP Server",
         "version": "1.0.0",
         "packages": [
           {
             "registryType": "npm",
-            "identifier": "@chrome/devtools-mcp",
+            "identifier": "chrome-devtools-mcp",
             "version": "1.0.0",
+            "runtimeHint": "npx",
+            "transport": {
+              "type": "stdio"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_meta": {
+        "io.modelcontextprotocol.registry/official": {
+          "status": "active",
+          "publishedAt": "2025-10-20T00:00:00Z",
+          "isLatest": true
+        }
+      },
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+        "name": "com.microsoft.playwright/server-mcp",
+        "description": "Playwright MCP server for browser automation and testing.",
+        "title": "Playwright MCP Server",
+        "version": "0.0.1",
+        "packages": [
+          {
+            "registryType": "npm",
+            "identifier": "@playwright/mcp",
+            "version": "0.0.1",
             "runtimeHint": "npx",
             "transport": {
               "type": "stdio"
@@ -131,7 +154,7 @@
     }
   ],
   "metadata": {
-    "count": 5,
+    "count": 6,
     "nextCursor": null
   }
 }
