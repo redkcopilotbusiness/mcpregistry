@@ -4,31 +4,65 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 )
 
-// Simple registry format (GitHub instructions)
+// MCP Registry format following server-list-template.json
 // {
-//   "servers": [ { "id": "github", "name": "GitHub MCP Server", ... } ],
-//   "total_count": 2,
-//   "updated_at": "2025-09-09T12:00:00Z"
+//   "servers": [
+//     {
+//       "_meta": { "io.modelcontextprotocol.registry/official": {...} },
+//       "server": { "$schema": "...", "name": "...", ... }
+//     }
+//   ],
+//   "metadata": { "count": 5, "nextCursor": null }
 // }
 
-type SimpleServer struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	ManifestURL string    `json:"manifest_url"`
-	Categories  []string  `json:"categories,omitempty"`
-	Version     string    `json:"version,omitempty"`
-	ReleaseDate time.Time `json:"release_date,omitempty"`
-	Latest      bool      `json:"latest,omitempty"`
+type Transport struct {
+	Type string `json:"type"`
+	URL  string `json:"url,omitempty"`
 }
 
-type Curated struct {
-	Servers    []SimpleServer `json:"servers"`
-	TotalCount int            `json:"total_count"`
-	UpdatedAt  time.Time      `json:"updated_at"`
+type Package struct {
+	RegistryType string    `json:"registryType"`
+	Identifier   string    `json:"identifier"`
+	Version      string    `json:"version"`
+	RuntimeHint  string    `json:"runtimeHint,omitempty"`
+	Transport    Transport `json:"transport"`
+}
+
+type Server struct {
+	Schema      string      `json:"$schema"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Title       string      `json:"title,omitempty"`
+	Version     string      `json:"version"`
+	Packages    []Package   `json:"packages,omitempty"`
+	Remotes     []Transport `json:"remotes,omitempty"`
+}
+
+type OfficialMeta struct {
+	Status      string `json:"status"`
+	PublishedAt string `json:"publishedAt"`
+	IsLatest    bool   `json:"isLatest"`
+}
+
+type Meta struct {
+	Official OfficialMeta `json:"io.modelcontextprotocol.registry/official"`
+}
+
+type ServerEntry struct {
+	Meta   Meta   `json:"_meta"`
+	Server Server `json:"server"`
+}
+
+type Metadata struct {
+	Count      int  `json:"count"`
+	NextCursor *int `json:"nextCursor"`
+}
+
+type RegistryList struct {
+	Servers  []ServerEntry `json:"servers"`
+	Metadata Metadata      `json:"metadata"`
 }
 
 func main() {
@@ -41,25 +75,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	var curated Curated
-	if err := json.Unmarshal(raw, &curated); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to parse curated_servers.json (expecting simple registry format): %v\n", err)
+	var registryList RegistryList
+	if err := json.Unmarshal(raw, &registryList); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to parse curated_servers.json (expecting MCP registry format): %v\n", err)
 		os.Exit(1)
 	}
 
-	// Populate counts & timestamps if missing / zero.
-	if curated.TotalCount == 0 {
-		curated.TotalCount = len(curated.Servers)
-	}
-	// Always refresh updated_at to reflect regeneration time.
-	curated.UpdatedAt = time.Now().UTC().Truncate(time.Second)
+	// Ensure metadata count matches actual server count
+	registryList.Metadata.Count = len(registryList.Servers)
 
 	if err := os.MkdirAll("docs/v0/servers", 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to ensure output dir: %v\n", err)
 		os.Exit(1)
 	}
 
-	outBytes, err := json.MarshalIndent(curated, "", "  ")
+	outBytes, err := json.MarshalIndent(registryList, "", "  ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to marshal index.json: %v\n", err)
 		os.Exit(1)
@@ -68,5 +98,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed to write %s: %v\n", outputPath, err)
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stdout, "Generated simple registry docs/v0/servers/index.json")
+	fmt.Fprintln(os.Stdout, "Generated MCP registry docs/v0/servers/index.json")
 }
